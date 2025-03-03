@@ -15,9 +15,9 @@ Made by [C. Liam Brown](https://cliambrown.com)
 Requires knowledge of building stuff with [Laravel](https://laravel.com/docs)
 
 1. Clone the repo
-1. Create `.env` with your db settings and other preferred parameters
 1. Run `composer install`
-1. Optional: run `npm install` (for dev)
+1. Create `.env` with your db settings and other preferred parameters
+1. `php artisan migrate`
 1. Whatever other steps are required for your particular server context
 
 ## Licence
