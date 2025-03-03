@@ -126,6 +126,8 @@ export default (initState) => ({
         this.selected_item_id = null;
         const index = this.item_ids.indexOf(itemID);
         if (index > -1) this.item_ids.splice(index, 1);
+        const index2 = this.filtered_item_ids.indexOf(itemID);
+        if (index2 > -1) this.filtered_item_ids.splice(index2, 1);
         delete this.items[itemID];
       }).catch(error => {
         console.log(error.message);
