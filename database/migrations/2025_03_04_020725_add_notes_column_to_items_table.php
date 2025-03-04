@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('items', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->datetime('last_checked_at');
-            $table->timestamps();
-            // Added in another migration
-            // $table->text('notes')->nullable();
+        Schema::table('items', function (Blueprint $table) {
+            $table->text('notes')->nullable();
         });
     }
 
@@ -26,6 +21,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('items');
+        Schema::table('items', function (Blueprint $table) {
+            if (Schema::hasColumn('items', 'notes')) {
+                $table->dropColumn('notes');
+            }
+        });
     }
 };

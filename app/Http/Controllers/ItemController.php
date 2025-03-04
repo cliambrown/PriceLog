@@ -70,9 +70,11 @@ class ItemController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
+            'notes' => 'nullable|string',
         ]);
         
         $item->name = $request->name;
+        $item->notes = $request->notes;
         $item->save();
         
         return response()->json(['id' => $item->id], 200);

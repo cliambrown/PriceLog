@@ -18,8 +18,9 @@ export default (initState) => ({
   get selectedItem() {
     return this.items[this.selected_item_id];
   },
+  editing_selected_item: false,
   new_selected_item_name: '',
-  editing_selected_item_name: false,
+  new_selected_item_notes: null,
   
   selected_entry_id: null,
   get selectedEntry() {
@@ -74,6 +75,7 @@ export default (initState) => ({
         filter_name: simplifyString(this.new_name),
         entries: {},
         entry_ids: [],
+        notes: null,
       };
       this.item_ids.unshift(itemID);
       this.new_name = '';
@@ -92,19 +94,23 @@ export default (initState) => ({
     axios.post(`api/items/${itemID}/update_last_checked_at`);
   },
   
-  toggleEditSelectedItemName(toOn) {
+  editSelectedItem(toOn) {
+    this.editEntry(null);
     this.new_selected_item_name = this.selectedItem.name;
-    this.editing_selected_item_name = toOn;
+    this.new_selected_item_notes = this.selectedItem.notes;
+    this.editing_selected_item = toOn;
   },
   
-  updateSelectedItemName() {
+  updateSelectedItem() {
     if (this.saving || !this.new_selected_item_name.trim()) return false;
     this.saving = true;
     axios.post(`api/items/${this.selected_item_id}/update`, {
       name: this.new_selected_item_name,
+      notes: this.new_selected_item_notes,
     }).then(response => {
       this.items[this.selected_item_id].name = this.new_selected_item_name.trim();
-      this.toggleEditSelectedItemName(false);
+      this.items[this.selected_item_id].notes = ('' + this.new_selected_item_notes).trim();
+      this.editSelectedItem(false);
     }).catch(error => {
       console.log(error.message);
       alert(getReadableAxiosError(error));
@@ -122,7 +128,7 @@ export default (initState) => ({
       .then(response => {
         const itemID = parseIntSafe(this.selected_item_id);
         this.editEntry(null);
-        this.toggleEditSelectedItemName(false);
+        this.editSelectedItem(false);
         this.selected_item_id = null;
         const index = this.item_ids.indexOf(itemID);
         if (index > -1) this.item_ids.splice(index, 1);
@@ -149,6 +155,7 @@ export default (initState) => ({
   editEntry(entryID) {
     this.selected_entry_id = entryID;
     if (entryID && this.selectedEntry) {
+      this.editing_selected_item = false;
       this.new_entry_location = this.selectedEntry.location;
       this.new_entry_is_sale = !!this.selectedEntry.is_sale;
       this.new_entry_price = this.selectedEntry.price;
@@ -223,7 +230,7 @@ export default (initState) => ({
           this.selectedEntry.price = price;
           this.selectedEntry.seen_on = this.new_entry_seen_on;
           this.selectedEntry.seen_on_diff = diffForHumans(this.selectedEntry.seen_on);
-          this.selectedEntry.notes = this.new_entry_notes;
+          this.selectedEntry.notes = ('' + this.new_entry_notes).trim();
         }
         
         this.selectedItem.entry_ids.sort((idA, idB) => {
