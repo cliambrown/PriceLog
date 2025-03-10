@@ -9,8 +9,11 @@ export default (initState) => ({
   
   init() {
     this.updateFilter();
-    for (const key in this.entries) {
-      this.entries[key].seen_on = dateFromYmd(this.entries[key].seen_on);
+    for (const itemID in this.items) {
+      this.triageItemEntries(itemID);
+    }
+    for (const entryID in this.entries) {
+      this.entries[entryID].seen_on = dateFromYmd(this.entries[entryID].seen_on);
     }
   },
   
@@ -109,7 +112,9 @@ export default (initState) => ({
       notes: this.new_selected_item_notes,
     }).then(response => {
       this.items[this.selected_item_id].name = this.new_selected_item_name.trim();
-      this.items[this.selected_item_id].notes = ('' + this.new_selected_item_notes).trim();
+      let notes = this.new_selected_item_notes;
+      if (notes) notes = notes.trim();
+      this.items[this.selected_item_id].notes = notes;
       this.editSelectedItem(false);
     }).catch(error => {
       console.log(error.message);
@@ -230,17 +235,11 @@ export default (initState) => ({
           this.selectedEntry.price = price;
           this.selectedEntry.seen_on = this.new_entry_seen_on;
           this.selectedEntry.seen_on_diff = diffForHumans(this.selectedEntry.seen_on);
-          this.selectedEntry.notes = ('' + this.new_entry_notes).trim();
+          let notes = this.new_entry_notes;
+          if (notes) notes = notes.trim();
+          this.selectedEntry.notes = notes;
         }
-        
-        this.selectedItem.entry_ids.sort((idA, idB) => {
-          const priceA = this.entries[idA].price;
-          const priceB = this.entries[idB].price;
-          if (priceA == priceB) {
-            return this.entries[idB].seen_on - this.entries[idA].seen_on;
-          }
-          return priceA - priceB;
-        });
+        this.triageItemEntries(this.selected_item_id);
         this.editEntry(null);
       }).catch(error => {
         console.log(error.message);
@@ -248,6 +247,36 @@ export default (initState) => ({
       }).finally(() => {
         this.saving = false;
       });
+  },
+  
+  triageItemEntries(itemID) {
+    const item = this.items[itemID];
+    const entryCount = item.entry_ids.length;
+    if (entryCount == 0) {
+      item.highlight_entry_ids = [];
+      item.more_entries_count = 0;
+    }
+    
+    item.entry_ids.sort((idA, idB) => {
+      const priceA = this.entries[idA].price;
+      const priceB = this.entries[idB].price;
+      if (priceA == priceB) {
+        return this.entries[idB].seen_on - this.entries[idA].seen_on;
+      }
+      return priceA - priceB;
+    });
+    
+    const weekAgo = getToday();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    item.highlight_entry_ids = item.entry_ids.filter(entryID => {
+      const entry = this.entries[entryID];
+      return (!entry.is_sale || entry.seen_on > weekAgo);
+    }).slice(0, entryCount > 3 ? 2 : 3);
+    
+    if (item.highlight_entry_ids.length == 0) {
+      item.highlight_entry_ids = item.entry_ids.slice(0, entryCount > 3 ? 2 : 3);
+    }
+    item.more_entries_count = entryCount - item.highlight_entry_ids.length;
   },
   
   deleteSelectedEntry() {

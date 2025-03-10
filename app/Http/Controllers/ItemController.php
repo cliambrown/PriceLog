@@ -23,6 +23,8 @@ class ItemController extends Controller
             ->keyBy('id')
             ->map(function ($item) {
                 $item->entry_ids = [];
+                $item->highlight_entry_ids = [];
+                $item->more_entries_count = 0;
                 return $item;
             });
         

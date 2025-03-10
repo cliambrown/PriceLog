@@ -43,23 +43,25 @@
                             
                             <div x-text="items[itemID].name" class="font-semibold text-purple-800"></div>
                             
-                            <table class="w-full">
-                                <template x-for="entryID in items[itemID].entry_ids.slice(0, items[itemID].entry_ids.length > 3 ? 2 : 3)" x-bind:key="entryID">
+                            <table class="w-full max-w-full">
+                                <template x-for="entryID in items[itemID].highlight_entry_ids" x-bind:key="entryID">
                                     <tr>
-                                        <td class="pt-1 pr-3 text-right align-top whitespace-nowrap">
+                                        <td class="pt-1 pr-3 text-right whitespace-nowrap">
                                             <span class="text-gray-600 mr-0.5">$</span><span class="font-semibold" x-text="entries[entryID].price.toFixed(2)"></span>
                                             
                                         </td>
-                                        <td class="w-full pt-1 align-top">
-                                            <span class="mr-2" x-text="entries[entryID].location"></span>
-                                            <span class="inline-block px-2 py-0.5 mr-2 text-xs font-semibold text-green-900 tracking-wide bg-green-100 rounded-full" x-show="entries[entryID].is_sale" x-cloak>SALE</span>
-                                            <span class="text-xs text-gray-600 whitespace-nowrap" x-text="entries[entryID].seen_on_diff"></span>
+                                        <td class="w-full pt-1 overflow-hidden whitespace-nowrap max-w-0">
+                                            <div class="flex items-baseline justify-start">
+                                                <span class="mr-2 truncate shrink" x-text="entries[entryID].location"></span>
+                                                <span class="inline-block px-2 py-0.5 mr-2 text-xs font-semibold text-green-900 tracking-wide bg-green-100 rounded-full shrink-0" x-show="entries[entryID].is_sale" x-cloak>SALE</span>
+                                                <span class="text-xs text-gray-600 shrink-0" x-text="entries[entryID].seen_on_diff"></span>
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>
-                                <tr x-show="items[itemID].entry_ids.length > 3" x-cloak>
+                                <tr x-show="items[itemID].more_entries_count > 0" x-cloak>
                                     <td class="pt-1 text-gray-700" colspan="2">
-                                        + <span x-text="items[itemID].entry_ids.length - 2"></span> more
+                                        + <span x-text="items[itemID].more_entries_count"></span> more
                                     </td>
                                 </tr>
                             </table>
@@ -207,7 +209,7 @@
                                     <form class="flex flex-col w-full max-w-xl max-h-full bg-white rounded-lg" x-on:click.outside="editEntry(null)" x-on:submit.prevent="saveEntry">
                                         
                                         <div class="p-4 bg-gray-100 rounded-t-lg">
-                                            <div class="flex items-center justify-between h-10 gap-2">
+                                            <div class="flex items-center justify-between gap-2 min-h-10">
                                                 
                                                 <div>
                                                     <div class="text-lg font-semibold text-green-800" x-text="selectedEntryTitle"></div>
