@@ -4,6 +4,7 @@ export default (initState) => ({
   item_ids: initState.item_ids,
   filtered_item_ids: [],
   entries: initState.entries,
+  locations: initState.locations,
   new_name: '',
   saving: false,
   
@@ -15,6 +16,11 @@ export default (initState) => ({
     for (const entryID in this.entries) {
       this.entries[entryID].seen_on = dateFromYmd(this.entries[entryID].seen_on);
     }
+    
+    // DEBUG
+    console.log(getAlpineObj(this.locations))
+    this.selectItem(1);
+    this.editEntry(1);
   },
   
   selected_item_id: null,
@@ -39,6 +45,7 @@ export default (initState) => ({
   },
   new_entry: {},
   new_entry_location: '',
+  filtered_locations: [],
   new_entry_is_sale: false,
   new_entry_price: null,
   new_entry_seen_on: null,
@@ -167,6 +174,35 @@ export default (initState) => ({
       this.new_entry_seen_on = this.selectedEntry.seen_on;
       this.new_entry_notes = this.selectedEntry.notes;
     }
+  },
+  
+  updateFilteredLocations() {
+    let filterStr = this.new_entry_location;
+    if (!filterStr) filterStr = '';
+    else filterStr = simplifyString(filterStr);
+    if (!filterStr.length) {
+      this.filtered_locations = [];
+      return false;
+    }
+    let arr = [];
+    for (const location of this.locations) {
+      const filterIndex = location.simple_name.indexOf(filterStr);
+      if (filterIndex > -1) {
+        arr.push({
+          name: location.name,
+          simple_name: location.simple_name,
+          filter_index: location.simple_name.indexOf(filterStr),
+        });
+      }
+    }
+    arr = arr.sort((a, b) => a.filter_index - b.filter_index)
+      .slice(0, 10);
+    this.filtered_locations = arr;
+  },
+  
+  selectLocation(locationName) {
+    this.new_entry_location = locationName;
+    this.filtered_locations = [];
   },
   
   get canSaveEntry() {

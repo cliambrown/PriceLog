@@ -6,7 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+// use Illuminate\Support\Str;
 
 class Item extends Model
 {
@@ -23,7 +23,8 @@ class Item extends Model
     
     protected function filterName(): Attribute {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => Str::lower(Str::transliterate($attributes['name'])),
+            // get: fn (mixed $value, array $attributes) => Str::lower(Str::transliterate($attributes['name'])),
+            get: fn (mixed $value, array $attributes) => simplify_string($attributes['name']),
         );
     }
     

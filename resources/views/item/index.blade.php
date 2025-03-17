@@ -6,7 +6,8 @@
             <div x-data="pricelog({
                     items: {{ $items->toJson() }},
                     item_ids: {{ $itemIDs->toJson() }},
-                    entries: {{ $entries->toJson() }}
+                    entries: {{ $entries->toJson() }},
+                    locations: {{ $locations->toJson() }}
                 })">
                 
                 <form class="flex gap-2 px-4 sm:px-0" x-on:submit.prevent="storeItem">
@@ -232,7 +233,20 @@
                                             
                                             <div class="">
                                                 <x-input-label for="new_entry_location" value="Location" />
-                                                <x-text-input id="new_entry_location" class="block w-full pr-12 mt-1" type="text" name="new_entry_location" x-model="new_entry_location" />
+                                                <div class="relative">
+                                                    <x-text-input id="new_entry_location" class="block w-full mt-1" type="text" name="new_entry_location" x-model="new_entry_location" x-on:input.debounce="updateFilteredLocations" />
+                                                    <template x-if="filtered_locations.length">
+                                                        <div class="absolute z-30 w-full bg-white border rounded-b shadow-xl top-full">
+                                                            <ul>
+                                                                <template x-for="location in filtered_locations">
+                                                                    <li class="my-1">
+                                                                        <button type="button" class="block w-full px-3 py-2 text-left" x-text="location.name" x-on:click="selectLocation(location.name)"></button>
+                                                                    </li>
+                                                                </template>
+                                                            </ul>
+                                                        </div>
+                                                    </template>
+                                                </div>
                                             </div>
                                             
                                             <div class="flex items-start justify-start gap-8 mt-4">
@@ -253,6 +267,11 @@
                                                     </div>
                                                 </div>
                                                 
+                                            </div>
+                                            
+                                            <div class="mt-4">
+                                                <x-input-label for="new_entry_notes" value="Notes" />
+                                                <textarea x-data x-autosize x-model="new_entry_notes" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                                             </div>
                                             
                                             <div class="mt-4"
@@ -280,11 +299,6 @@
                                                 <div>
                                                     <input type="text" name="new_entry_seen_on" id="new_entry_seen_on" class="w-full pr-12 my-1 rounded max-w-52" x-ref="datepicker_el" readonly>
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="mt-4">
-                                                <x-input-label for="new_entry_notes" value="Notes" />
-                                                <textarea x-data x-autosize x-model="new_entry_notes" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                                             </div>
                                             
                                         </div>

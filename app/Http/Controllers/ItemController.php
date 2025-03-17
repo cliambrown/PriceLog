@@ -36,15 +36,30 @@ class ItemController extends Controller
             ->get()
             ->keyBy('id');
         
+        $locations = collect([]);
+        
         foreach ($entries as $entry) {
             $items[$entry->item_id]->entry_ids = array_merge($items[$entry->item_id]->entry_ids, [$entry->id]);
+            if (!$locations->has($entry->location)) {
+                $locations->put($entry->location, true);
+            }
         }
+        
+        $locations = $locations->map(function ($element, $key) {
+                return [
+                    'name' => $key,
+                    'simple_name' => simplify_string($key),
+                ];
+            })
+            ->sortBy('simple_name')
+            ->values();
         
         return view('item.index', [
             'items' => $items,
             'itemIDs' => $itemIDs,
             'entries' => $entries,
             'entryIDs' => $entries->pluck('id'),
+            'locations' => $locations,
         ]);
     }
 
